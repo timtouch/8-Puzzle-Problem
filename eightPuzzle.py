@@ -7,6 +7,20 @@
 
 '''
 
+
+def eightPuzzle (initialState, finalState):
+    result = dfs(initialState, finalState, 10)
+
+    if result == None:
+        print("There is no solution")
+    elif result == [None]:
+        print("The Beginning is the End")
+    else:
+        displayBoard(initialState)
+        for step in result:
+            displayBoard(step)
+        print (len(result), "moves")
+    
 class Node:
     def __init__(self, state, parent, operator, depth, cost):
         self.state = state
@@ -14,13 +28,6 @@ class Node:
         self.operator = operator
         self.depth = depth
         self.cost = cost
-
-def eightPuzzle (initialState, finalState):
-    displayBoard(initialState)
-    displayBoard(finalState)
-
-    displayBoard(movement(initialState,'u'))
-    displayBoard(initialState)
 
 def displayBoard (boardState):
     print(' {} {} {} \n {} {} {} \n {} {} {} \n'.format(boardState[0], boardState[1], boardState[2], boardState[3], boardState[4], boardState[5], boardState[6], boardState[7], boardState[8]))  
@@ -34,18 +41,68 @@ def displayBoard (boardState):
        'r' - right
 '''
 def movement(state, direction):
-    emptySpace = state.index(0)
-    if direction == 'u' and emptySpace > 2:
-        state[emptySpace], state[emptySpace - 3] = state[emptySpace - 3], state[emptySpace]
-    if direction == 'd' and emptySpace < 6:
-        state[emptySpace], state[emptySpace + 3] = state[emptySpace + 3], state[emptySpace]
-    if direction == 'l' and mptySpace % 3 != 0:
-        state[emptySpace], state[emptySpace - 1] = state[emptySpace - 1], state[emptySpace]
-    if direction == 'r' and emptySpace % 3 != 2:
-        state[emptySpace], state[emptySpace + 1] = state[emptySpace + 1], state[emptySpace]
-    return state
+    # Shallow copy state
+    currentState = list(state)
+    emptySpace = currentState.index(0)
+    
+    if direction == 'u':
+        if emptySpace > 2:
+            currentState[emptySpace], currentState[emptySpace - 3] = currentState[emptySpace - 3], currentState[emptySpace]
+        else:
+            return None
+    if direction == 'd':
+        if emptySpace < 6:
+            currentState[emptySpace], currentState[emptySpace + 3] = currentState[emptySpace + 3], currentState[emptySpace]
+        else:
+            return None
+    if direction == 'l':
+        if emptySpace % 3 != 0:
+            currentState[emptySpace], currentState[emptySpace - 1] = currentState[emptySpace - 1], currentState[emptySpace]
+        else:
+            return None
+    if direction == 'r':
+        if emptySpace % 3 != 2:
+            currentState[emptySpace], currentState[emptySpace + 1] = currentState[emptySpace + 1], currentState[emptySpace]
+        else:
+            return None
+    return currentState
 
+def expandNode(node, nodes):
+    # Returns a list of expanded nodes
+    expNodes = []
+    expNodes.append(Node(movement(node.state, 'u'), node, "u", node.depth + 1, 0))
+    expNodes.append(Node(movement(node.state, 'd'), node, "d", node.depth + 1, 0))
+    expNodes.append(Node(movement(node.state, 'l'), node, "l", node.depth + 1, 0))
+    expNodes.append(Node(movement(node.state, 'r'), node, "r", node.depth + 1, 0))
 
+    
+    # Impossible nodes (those that return None) are not saved
+    expNodes = [node for node in expNodes if node.state != None]
+    return expNodes
+    
+def dfs(initialState, finalState, depth):
+
+    maxDepth = depth
+    nodes =[]
+    nodes.append(Node(initialState, None, None, 0, 0))
+    while True:
+        if len(nodes) == 0:
+            return None
+        node = nodes.pop(0)
+
+        if node.state  == finalState:
+            moves = []
+            temp = node
+            while True:
+                moves.insert(0, temp.state)
+                if temp.depth <= 1:
+                    break
+                temp = temp.parent
+            return moves
+        if node.depth < maxDepth:
+            expNodes = expandNode(node, nodes)
+            expNodes.extend(nodes)
+            nodes = expNodes
     
 
 initialState = [ 2, 8, 3,
