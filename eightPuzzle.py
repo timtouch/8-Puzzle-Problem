@@ -1,5 +1,16 @@
 
 '''
+    eightPuzzle.py
+
+    Author: Timothy Touch
+    Class: CECS 328
+    Description:      The eight puzzle is a variant of n-puzzles where we have an n x n matrix of sequential numbers
+                  with an empty space.  The puzzle is usually shuffled and then solved by sliding around the
+                  number pieces.  In this program, we take an initial state and a final state that we want to reach.
+                  The depth is used to limit how deep to search, limiting search time.
+                      The final result is a display of the moves and order of steps to take to solve the puzzle.
+    
+    
     For index reference
     [ 0 1 2
       3 4 5
@@ -9,7 +20,7 @@
 
 
 def eightPuzzle (initialState, finalState):
-    result = dfs(initialState, finalState, 10)
+    result = dfs(initialState, finalState, 100)
 
     if result == None:
         print("There is no solution")
@@ -26,13 +37,14 @@ def eightPuzzle (initialState, finalState):
         print (len(result), "moves")
     
 class Node:
-    def __init__(self, state, parent, operator, depth, cost):
+    def __init__(self, state, parent, depth):
         self.state = state
         self.parent = parent
-        self.operator = operator
         self.depth = depth
-        self.cost = cost
 
+'''
+    Format display of a board state
+'''
 def displayBoard (boardState):
     print(' {} {} {} \n {} {} {} \n {} {} {} \n'.format(boardState[0], boardState[1], boardState[2], boardState[3], boardState[4], boardState[5], boardState[6], boardState[7], boardState[8]))  
 
@@ -61,27 +73,39 @@ def movement(state, direction):
         return None
     return currentState
 
-# This is a very bfs way of doing things
+'''
+    Returns a list of available moves from the state of a given node
+'''
 def expandNode(node):
     # Returns a list of expanded nodes, basically an adjacency vertex
     expNodes = []
-    expNodes.append(Node(movement(node.state, 'u'), node, "u", node.depth + 1, 0))
-    expNodes.append(Node(movement(node.state, 'd'), node, "d", node.depth + 1, 0))
-    expNodes.append(Node(movement(node.state, 'l'), node, "l", node.depth + 1, 0))
-    expNodes.append(Node(movement(node.state, 'r'), node, "r", node.depth + 1, 0))
+    expNodes.append(Node(movement(node.state, 'u'), node, node.depth + 1))
+    expNodes.append(Node(movement(node.state, 'd'), node, node.depth + 1))
+    expNodes.append(Node(movement(node.state, 'l'), node, node.depth + 1))
+    expNodes.append(Node(movement(node.state, 'r'), node, node.depth + 1))
 
     
     # Impossible nodes (those that return None) are not saved
     expNodes = [node for node in expNodes if node.state != None]
     return expNodes
+
+
+'''
+    Uses depth first search to find steps to solve puzzle
     
+    initialState - The initial board state
+    finalState - The goal we are trying to reach
+    depth - Essentially the max amount of moves we are limited to making
+        Allowing larger depth may take longer times and smaller depth may be insufficient
+        to getting a solution
+'''
 def dfs(initialState, finalState, depth):
 
     maxDepth = depth
     nodes =[]
-
     visited = []
-    nodes.append(Node(initialState, None, None, 0, 0))
+    
+    nodes.append(Node(initialState, None, 0))
     while True:
         # Tried all solutions to set max depth and no solution was found
         if len(nodes) == 0:
@@ -104,7 +128,7 @@ def dfs(initialState, finalState, depth):
             continue
         visited.append(node.state)
         # Check if we reach max depth of search
-        # If so, collect adjacency nodes
+        # If not, add adjacency nodes to search
         if node.depth < maxDepth:
             expNodes = expandNode(node)
             nodes.extend(expNodes)
@@ -112,9 +136,10 @@ def dfs(initialState, finalState, depth):
 
 initialState = [ 2, 8, 3,
                  1, 6, 4,
-                 7, 5, 0 ]
+                 7, 0, 5 ]
 
 finalState = [ 1, 2, 3,
                8, 0, 4,
                7, 6, 5 ]
+
 eightPuzzle(initialState, finalState)
