@@ -19,11 +19,11 @@
 '''
 
 
-def eightPuzzle (initialState, finalState):
-    result = dfs(initialState, finalState, 100)
+def eightPuzzle (initialState, finalState, depth):
+    result = dfs(initialState, finalState, depth)
 
     if result == None:
-        print("There is no solution")
+        print("There is no solution in", depth, "moves" )
     elif result == [None]:
         print("The Beginning is the End")
     else:
@@ -142,4 +142,4 @@ finalState = [ 1, 2, 3,
                8, 0, 4,
                7, 6, 5 ]
 
-eightPuzzle(initialState, finalState)
+eightPuzzle(initialState, finalState, 10)
