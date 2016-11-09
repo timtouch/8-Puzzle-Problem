@@ -62,8 +62,8 @@ def movement(state, direction):
     return currentState
 
 # This is a very bfs way of doing things
-def expandNode(node, nodes):
-    # Returns a list of expanded nodes
+def expandNode(node):
+    # Returns a list of expanded nodes, basically an adjacency vertex
     expNodes = []
     expNodes.append(Node(movement(node.state, 'u'), node, "u", node.depth + 1, 0))
     expNodes.append(Node(movement(node.state, 'd'), node, "d", node.depth + 1, 0))
@@ -80,16 +80,14 @@ def dfs(initialState, finalState, depth):
     maxDepth = depth
     nodes =[]
 
-    # Initialize moveset
+    visited = []
     nodes.append(Node(initialState, None, None, 0, 0))
     while True:
         # Tried all solutions to set max depth and no solution was found
         if len(nodes) == 0:
             return None
-
         
-        node = nodes.pop(0)
-
+        node = nodes.pop()
         # If we reach the final state, return the steps to get there
         if node.state  == finalState:
             moves = []
@@ -100,17 +98,21 @@ def dfs(initialState, finalState, depth):
                     break
                 temp = temp.parent
             return moves
-
+        
+        # If we have already visited the node, skip it
+        if node.state in visited:
+            continue
+        visited.append(node.state)
         # Check if we reach max depth of search
+        # If so, collect adjacency nodes
         if node.depth < maxDepth:
-            expNodes = expandNode(node, nodes)
-            expNodes.extend(nodes)
-            nodes = expNodes
+            expNodes = expandNode(node)
+            nodes.extend(expNodes)
     
 
 initialState = [ 2, 8, 3,
                  1, 6, 4,
-                 7, 0, 5 ]
+                 7, 5, 0 ]
 
 finalState = [ 1, 2, 3,
                8, 0, 4,
