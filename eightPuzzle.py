@@ -16,8 +16,12 @@ def eightPuzzle (initialState, finalState):
     elif result == [None]:
         print("The Beginning is the End")
     else:
+        count = 0
+        print("Initial State")
         displayBoard(initialState)
         for step in result:
+            count += 1
+            print( "Step #", count)
             displayBoard(step)
         print (len(result), "moves")
     
@@ -45,28 +49,19 @@ def movement(state, direction):
     currentState = list(state)
     emptySpace = currentState.index(0)
     
-    if direction == 'u':
-        if emptySpace > 2:
-            currentState[emptySpace], currentState[emptySpace - 3] = currentState[emptySpace - 3], currentState[emptySpace]
-        else:
-            return None
-    if direction == 'd':
-        if emptySpace < 6:
-            currentState[emptySpace], currentState[emptySpace + 3] = currentState[emptySpace + 3], currentState[emptySpace]
-        else:
-            return None
-    if direction == 'l':
-        if emptySpace % 3 != 0:
-            currentState[emptySpace], currentState[emptySpace - 1] = currentState[emptySpace - 1], currentState[emptySpace]
-        else:
-            return None
-    if direction == 'r':
-        if emptySpace % 3 != 2:
-            currentState[emptySpace], currentState[emptySpace + 1] = currentState[emptySpace + 1], currentState[emptySpace]
-        else:
-            return None
+    if direction == 'u' and emptySpace > 2:
+        currentState[emptySpace], currentState[emptySpace - 3] = currentState[emptySpace - 3], currentState[emptySpace]
+    elif direction == 'd' and emptySpace < 6:
+        currentState[emptySpace], currentState[emptySpace + 3] = currentState[emptySpace + 3], currentState[emptySpace]
+    elif direction == 'l' and emptySpace % 3 != 0:
+        currentState[emptySpace], currentState[emptySpace - 1] = currentState[emptySpace - 1], currentState[emptySpace]
+    elif direction == 'r' and emptySpace % 3 != 2:
+        currentState[emptySpace], currentState[emptySpace + 1] = currentState[emptySpace + 1], currentState[emptySpace]
+    else:
+        return None
     return currentState
 
+# This is a very bfs way of doing things
 def expandNode(node, nodes):
     # Returns a list of expanded nodes
     expNodes = []
@@ -84,12 +79,18 @@ def dfs(initialState, finalState, depth):
 
     maxDepth = depth
     nodes =[]
+
+    # Initialize moveset
     nodes.append(Node(initialState, None, None, 0, 0))
     while True:
+        # Tried all solutions to set max depth and no solution was found
         if len(nodes) == 0:
             return None
+
+        
         node = nodes.pop(0)
 
+        # If we reach the final state, return the steps to get there
         if node.state  == finalState:
             moves = []
             temp = node
@@ -99,6 +100,8 @@ def dfs(initialState, finalState, depth):
                     break
                 temp = temp.parent
             return moves
+
+        # Check if we reach max depth of search
         if node.depth < maxDepth:
             expNodes = expandNode(node, nodes)
             expNodes.extend(nodes)
